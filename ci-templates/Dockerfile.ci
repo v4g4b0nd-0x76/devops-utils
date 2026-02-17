@@ -1,0 +1,21 @@
+# Use the Docker CLI image as the base
+FROM docker:24.0.7-cli
+
+# Install tools needed for CI/CD
+# openssh-client: for ssh/scp to your swarm managers
+# git: for cloning the ci-templates repo
+# bash: to ensure your .sh scripts run correctly
+RUN apk add --no-cache \
+    openssh-client \
+    git \
+    bash \
+    curl \
+    jq \
+    ca-certificates
+
+# Optional: Pre-configure SSH to ignore host key checking 
+# (removes the need for -o StrictHostKeyChecking=no in scripts)
+RUN mkdir -p /root/.ssh && \
+    echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > /root/.ssh/config
+
+WORKDIR /builds

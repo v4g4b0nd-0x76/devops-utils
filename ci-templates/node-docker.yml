@@ -1,0 +1,24 @@
+variables:
+  REGISTRY: "2.189.5.183:9099"
+
+.base:
+  image: 2.189.5.183:9099/ci-docker
+  before_script:
+    - rm -rf ci-logic
+    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@192.168.73.18:5341/iri/ci-templates.git ci-logic
+    - chmod +x ./ci-logic/scripts/*.sh
+
+prep:
+  extends: .base
+  stage: prep
+  script:
+    - ./ci-logic/scripts/prep.sh "$REGISTRY" "$CI_PROJECT_NAME"
+  artifacts:
+    reports:
+      dotenv: build.env
+
+.deploy_template:
+  extends: .base
+  stage: deploy
+  script:
+    - ./ci-logic/scripts/deploy.sh "$CI_PROJECT_NAME" "$TARGET_HOST" "$STACK_NAME" "$STACK_PATH"
